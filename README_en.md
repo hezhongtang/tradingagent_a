@@ -4,6 +4,8 @@
 
 Multi-Agent LLM Trading Research Framework (Open-Source Derivative for China A-Share)
 
+Author Homepage & Contact: <https://michaelyuancb.github.io/>
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)
 ![License](https://img.shields.io/badge/License-Apache%202.0-2EA043)
 ![Market](https://img.shields.io/badge/Market-A--Share-D7263D)
