@@ -17,6 +17,7 @@ __pycache__/
 pip-wheel-metadata/
 build/
 dist/
+*.spec
 
 # Virtual environments
 .venv/
