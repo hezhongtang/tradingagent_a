@@ -35,7 +35,7 @@ def create_llm_client(
     """
     provider_lower = provider.lower()
 
-    if provider_lower in ("openai", "ollama", "openrouter"):
+    if provider_lower in ("openai", "ollama", "openrouter", "qwen"):
         return OpenAIClient(model, base_url, provider=provider_lower, **kwargs)
 
     if provider_lower == "azure":
