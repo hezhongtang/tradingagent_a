@@ -616,6 +616,10 @@ def get_user_selections():
     announcements = fetch_announcements()
     display_announcements(console, announcements)
 
+    # 检查更新（仅在 Windows PyInstaller EXE 模式下运行）
+    from cli.updater import check_and_prompt_update
+    check_and_prompt_update(console)
+
     # 为每个步骤创建带边框的问题框
     def create_question_box(title, prompt, default=None):
         """

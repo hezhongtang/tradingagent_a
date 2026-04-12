@@ -17,6 +17,7 @@ __pycache__/
 pip-wheel-metadata/
 build/
 dist/
+*.spec
 
 # Virtual environments
 .venv/
@@ -34,6 +35,7 @@ htmlcov/
 
 # Runtime outputs
 results/
+reports/
 *.log
 
 # IDE
