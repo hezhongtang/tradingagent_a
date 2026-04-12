@@ -52,55 +52,44 @@ def _load_tomllib():
     return tomllib
 
 
+def _read_version_from_path(pyproject_path: Path) -> Optional[str]:
+    """Helper: Read version from pyproject.toml at given path."""
+    tomllib = _load_tomllib()
+    if not tomllib:
+        return None
+    try:
+        with open(pyproject_path, "rb") as f:
+            data = tomllib.load(f)
+            return data.get("project", {}).get("version")
+    except (OSError, KeyError):
+        return None
+
+
 def get_current_version() -> str:
     """Read current version from pyproject.toml."""
     # Handle PyInstaller case differently
     if is_running_as_pyinstaller():
-        # In bundled mode, pyproject.toml should be in the same directory
-        # structure relative to the exe
+        # In bundled mode, pyproject.toml should be in the same directory next to the exe
         exe_path = Path(sys.executable).resolve()
-        # Look for pyproject.toml in parent directories
-        # Typically, for one-file build, it's next to the exe
         candidate = exe_path.parent / "pyproject.toml"
-        if candidate.exists():
-            tomllib = _load_tomllib()
-            if tomllib:
-                try:
-                    with open(candidate, "rb") as f:
-                        data = tomllib.load(f)
-                        version = data.get("project", {}).get("version", "0.0.0")
-                        return version
-                except (OSError, KeyError):
-                    pass
-        # If we can't find it, check the old location too
+        version = _read_version_from_path(candidate)
+        if version is not None:
+            return version
+        # Fallback: check relative to this module file
         current_file = Path(__file__)
         project_root = current_file.parent.parent
         pyproject_path = project_root / "pyproject.toml"
-        if pyproject_path.exists():
-            tomllib = _load_tomllib()
-            if tomllib:
-                try:
-                    with open(pyproject_path, "rb") as f:
-                        data = tomllib.load(f)
-                        version = data.get("project", {}).get("version", "0.0.0")
-                        return version
-                except (OSError, KeyError):
-                    pass
+        version = _read_version_from_path(pyproject_path)
+        if version is not None:
+            return version
     else:
         # Development mode
         current_file = Path(__file__)
         project_root = current_file.parent.parent
         pyproject_path = project_root / "pyproject.toml"
-        if pyproject_path.exists():
-            tomllib = _load_tomllib()
-            if tomllib:
-                try:
-                    with open(pyproject_path, "rb") as f:
-                        data = tomllib.load(f)
-                        version = data.get("project", {}).get("version", "0.0.0")
-                        return version
-                except (OSError, KeyError):
-                    pass
+        version = _read_version_from_path(pyproject_path)
+        if version is not None:
+            return version
 
     # Fallback version if we can't read
     return "0.2.3"
@@ -112,6 +101,9 @@ def check_for_updates() -> Optional[Dict[str, Any]]:
     Returns update info if newer version available, None otherwise.
     """
     if not is_running_on_windows() or not is_running_as_pyinstaller():
+        return None
+
+    if not CLI_CONFIG.get("update_check_enabled", True):
         return None
 
     current_version_str = get_current_version()
@@ -321,7 +313,7 @@ def display_update_info(update_info: Dict[str, Any], console: Console) -> None:
 
     panel = Panel(
         content,
-        title="🎉 Update Available",
+        title="Update Available",
         border_style="yellow",
         padding=(1, 2),
     )
@@ -335,6 +327,10 @@ def check_and_prompt_update(console: Console) -> None:
     Main entry point: check for updates and prompt user if available.
     If user accepts, start update process and exit.
     """
+    # Check config flag
+    if not CLI_CONFIG.get("update_check_enabled", True):
+        return
+
     # Only run on Windows PyInstaller exe
     if not is_running_on_windows() or not is_running_as_pyinstaller():
         return
