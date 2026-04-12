@@ -1,26 +1,29 @@
 import os
 import json
+import logging
 import pandas as pd
 from datetime import date, timedelta, datetime
 from typing import Annotated
+
+logger = logging.getLogger(__name__)
 
 SavePathType = Annotated[str, "File path to save data. If None, data is not saved."]
 
 def save_output(data: pd.DataFrame, tag: str, save_path: SavePathType = None) -> None:
     """
     保存输出内容。
-    
+
     参数：
         data: 输入数据。
         tag: 保存输出时使用的短标签。
         save_path: 输出文件的可选保存路径。
-    
+
     返回：
         None: 无返回值。
     """
     if save_path:
         data.to_csv(save_path, encoding="utf-8-sig")
-        print(f"{tag} saved to {save_path}")
+        logger.info(f"{tag} saved to {save_path}")
 
 
 def get_current_date():
